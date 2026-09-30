@@ -1,0 +1,5 @@
+{
+  "data_root": "/home/jayanth/datasets/coco",
+  "number_of_images": 28000,
+  "random_seed": 42
+}
