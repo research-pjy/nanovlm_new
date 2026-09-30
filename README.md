@@ -139,8 +139,9 @@ Remaining steps, to implement separately:
 
 - **1E-short:** generation completed on rama; review remaining validation flags.
 - **1E-long:** generation completed on rama.
-- **1F:** validator implemented; run the full-data reports on rama.
-- **1G–1H:** await specifications.
+- **1F:** full-data reports completed on rama; only length flags, no filtering.
+- **1G:** final dataset exporter implemented; run on rama.
+- **1H:** await specification.
 
 Validation:
 
@@ -318,3 +319,12 @@ See [the validation guide](docs/description_validation.md) for the rama commands
 check definitions, duplicate detection, per-record reports, and optional filtering.
 Default policies retain all records and flag word counts outside 20–27 (short)
 and 60–70 (long). No automatic deletion or generation-time status rewriting occurs.
+
+
+## DATA Phase 1G: final data format
+
+See [the final dataset guide](docs/final_dataset.md) for the rama export command,
+record schema, provenance checks and portable image-path handling. This joins
+saved short/long descriptions by image ID into `train.jsonl`, `val.jsonl`, and
+`test.jsonl`, with no teacher calls. Training must consume these exported files
+and local images only. No training code is implemented by this phase.
