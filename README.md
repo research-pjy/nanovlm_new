@@ -5,8 +5,9 @@ and still make coherent Vision Language Models?*
 
 ## Current scope
 
-Phase 0 scaffolding, modified Phase 1A (existing download verification), and
-Phase 1B (deterministic selection verification) are implemented. No selection generation, metadata export, model,
+Phase 0 scaffolding, modified Phase 1A (existing download verification),
+Phase 1B (deterministic selection verification), and Phase 1C (portable metadata
+export) are implemented. No selection generation, model,
 loss, training, or evaluation is implemented. Develop one phase at a time.
 
 ## Research question
@@ -134,9 +135,6 @@ copy separately; local success does not establish remote integrity.
 
 Remaining steps, to implement separately:
 
-- **1C:** export portable metadata with relative image paths and all original
-  captions. Some COCO images have more than five captions; the existing manifest
-  retains the first five, but the source annotations must remain authoritative.
 - **1D:** persist and verify the existing 25,200 / 2,800 / 100 assignments without
   reshuffling. Decide the final evaluation protocol separately.
 - **1E–1H:** await specifications.
@@ -183,4 +181,51 @@ not a replacement for a trusted source checksum or a permanently pinned dataset
 version. Exit status is zero only on success. No remote validation has been run.
 
 Selection IDs and assignments stay stored in the existing manifest. Portable
-metadata export and repository split artifacts remain for Phases 1C and 1D.
+metadata export is implemented in Phase 1C; repository split artifacts remain
+for Phase 1D.
+
+
+## DATA Phase 1C: portable metadata with all original captions
+
+Run from the repository root:
+
+```bash
+python3 -m src.data.export_metadata --config configs/data.local.json --output data/processed/coco_metadata.json
+```
+
+On rama, after review and transfer of the committed code, use `python` in `qwen-vl`
+and `--config configs/data.rama.json`. The output path is explicitly supplied and
+must be outside the source dataset. Generated metadata under `data/processed/` is
+ignored by Git; reproduce it on each machine from the same verified inputs.
+
+The JSON document has `schema_version: 1`, source-file SHA-256 fingerprints,
+seed, assignment counts, and a `records` list. Each record contains:
+
+- `image_id`: original COCO image ID.
+- `image_path`: POSIX path relative to the configured `data_root`, for example
+  `images/train2017/000000272081.jpg`. Resolve with `Path(data_root) / image_path`.
+- `source_split`: original COCO folder, independently of experimental assignment.
+- `assignment`: existing `train`, `val`, or `held_out` membership.
+- `caption_ids`: original annotation IDs, aligned positionally with `captions`.
+- `captions`: **all** original caption strings in annotation-file order, including
+  any beyond five. Whitespace, Unicode, punctuation, and repeated caption text
+  are retained without normalization or deduplication.
+
+Record order is train, validation, then held-out, preserving the manifest order
+within each assignment. No machine-specific absolute paths or timestamps are
+embedded, so identical inputs produce byte-identical output across data roots.
+
+Before exporting, Phase 1B verifies the deterministic selection. The exporter
+checks source fingerprints have not changed between verification and loading,
+checks the saved first five captions against the annotations, and verifies safe
+relative paths and image existence. Phase 1A remains responsible for full image
+decoding. Invalid inputs fail explicitly; no samples are silently discarded.
+Malformed source annotations stop verification; selected-record validation errors
+are collected with image IDs. No output is published unless validation succeeds.
+
+Output publication is atomic and refuses to overwrite a differing existing file.
+An identical existing export is reported as `unchanged` without rewriting it.
+For deliberately changed inputs, provide a new output filename for review.
+Source images, annotations, and the selection manifest are never modified.
+This phase copies existing assignments; it does not create new splits or generate
+ShortDesc/LongDesc descriptions.
