@@ -26,6 +26,8 @@ dist/
 !/data/processed/.gitkeep
 /data/splits/*
 !/data/splits/.gitkeep
+# Version the reviewed experimental ID assignments
+!/data/splits/coco_splits.json
 
 # Runtime artifacts
 /outputs/

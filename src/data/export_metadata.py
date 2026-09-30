@@ -4,12 +4,11 @@ import argparse
 from collections import Counter, defaultdict
 import hashlib
 import json
-import os
 from pathlib import Path, PurePosixPath
 import sys
-import tempfile
 
 from .verify_selection import read_json, verify
+from .artifacts import publish
 
 
 def build_metadata(config):
@@ -79,25 +78,7 @@ def export(config, output):
         raise ValueError('Export output must be outside the source data_root')
     document = build_metadata(config)
     payload = (json.dumps(document, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
-    output.parent.mkdir(parents=True, exist_ok=True)
-    temporary = None
-    try:
-        with tempfile.NamedTemporaryFile(dir=output.parent, prefix='.metadata-', delete=False) as stream:
-            temporary = Path(stream.name)
-            stream.write(payload)
-            stream.flush()
-            os.fsync(stream.fileno())
-        try:
-            # Publish a complete file atomically, refusing to replace an existing file.
-            os.link(temporary, output)
-            status = 'created'
-        except FileExistsError:
-            if output.read_bytes() != payload:
-                raise ValueError(f'Existing export differs: {output}; use a new output path')
-            status = 'unchanged'
-    finally:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
+    status = publish(output, payload)
     counts = Counter(len(record['captions']) for record in document['records'])
     return {
         'status': status,

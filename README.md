@@ -6,8 +6,8 @@ and still make coherent Vision Language Models?*
 ## Current scope
 
 Phase 0 scaffolding, modified Phase 1A (existing download verification),
-Phase 1B (deterministic selection verification), and Phase 1C (portable metadata
-export) are implemented. No selection generation, model,
+Phase 1B (deterministic selection verification), Phase 1C (portable metadata
+export), and Phase 1D (preserved split artifacts) are implemented. No selection generation, model,
 loss, training, or evaluation is implemented. Develop one phase at a time.
 
 ## Research question
@@ -68,8 +68,8 @@ tests/                    Future component and integration tests
 ```
 
 Empty directories contain `.gitkeep` files so they can be versioned. Local data
-contents are ignored by default; decide which split manifests to version during
-the DATA bucket. Dependencies and executable configurations will be introduced
+contents are ignored by default; the reviewed `data/splits/coco_splits.json`
+manifest is explicitly allowed in Git. Dependencies and executable configurations will be introduced
 when their corresponding implementation is authorized.
 
 ## Development and execution
@@ -135,8 +135,6 @@ copy separately; local success does not establish remote integrity.
 
 Remaining steps, to implement separately:
 
-- **1D:** persist and verify the existing 25,200 / 2,800 / 100 assignments without
-  reshuffling. Decide the final evaluation protocol separately.
 - **1E–1H:** await specifications.
 
 Validation:
@@ -181,8 +179,8 @@ not a replacement for a trusted source checksum or a permanently pinned dataset
 version. Exit status is zero only on success. No remote validation has been run.
 
 Selection IDs and assignments stay stored in the existing manifest. Portable
-metadata export is implemented in Phase 1C; repository split artifacts remain
-for Phase 1D.
+metadata export is implemented in Phase 1C and repository split artifacts in
+Phase 1D.
 
 
 ## DATA Phase 1C: portable metadata with all original captions
@@ -229,3 +227,49 @@ For deliberately changed inputs, provide a new output filename for review.
 Source images, annotations, and the selection manifest are never modified.
 This phase copies existing assignments; it does not create new splits or generate
 ShortDesc/LongDesc descriptions.
+
+
+## DATA Phase 1D: preserve the experimental assignments
+
+```bash
+python3 -m src.data.export_splits --config configs/data.local.json --metadata data/processed/coco_metadata.json --output data/splits/coco_splits.json
+```
+
+The versioned `data/splits/coco_splits.json` stores the actual ordered image IDs
+for `train` (25,200), `val` (2,800), and `held_out` (100), plus counts, seed 42,
+training fraction, and source/metadata SHA-256 fingerprints. Include this file in
+the Phase 1D commit. It contains no images, caption text, or absolute paths.
+The 90/10 ratio applies to the 28,000 training/validation pool; the 100 evaluation
+images are separate. This step preserves existing assignments without reshuffling
+or choosing a smaller evaluation subset.
+
+The exporter independently rebuilds Phase 1C metadata in memory from the verified
+source selection and annotations, then requires the supplied metadata to agree.
+It checks each ID's assignment and order, counts, uniqueness, and complete
+coverage. Any duplicate ID, including overlap between assignments, is an error.
+The report explicitly gives all three pairwise overlap counts (zero on success).
+This establishes separation by COCO image ID; it is not a near-duplicate visual
+content audit.
+
+The shared artifact publisher writes a complete file atomically and never replaces
+a differing existing artifact. Rerunning against the tracked split file validates
+inputs and reports `unchanged` when the result agrees. Differences require review,
+not automatic regeneration. The metadata fingerprint identifies exact bytes, so
+use the deterministic Phase 1C export without manual reformatting.
+
+After reviewing, committing, pushing locally, run these on rama from the cloned
+repository. Run each command only after the previous command succeeds:
+
+```bash
+cd /home/jayanth/projects/nanovlm_new
+git pull --ff-only
+conda activate qwen-vl
+python -m src.data.export_metadata --config configs/data.rama.json --output data/processed/coco_metadata.json
+python -m src.data.export_splits --config configs/data.rama.json --metadata data/processed/coco_metadata.json --output data/splits/coco_splits.json
+```
+
+The split command should report `unchanged`, counts of 25,200 / 2,800 / 100, and
+zero overlap in each pair. If Phase 1A has not been run on rama's copy, run
+`python -m src.data.verify_existing --config configs/data.rama.json` first to
+check image decoding as well. No remote commands were executed during local
+implementation. No model, training, or later DATA phases are implemented here.
