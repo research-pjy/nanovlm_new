@@ -50,14 +50,14 @@ python -m src.data.generate_longdesc \
   --config configs/longdesc.qwen.json \
   --metadata data/processed/coco_metadata.json \
   --splits data/splits/coco_splits.json \
-  --output-dir data/generated/longdesc_qwen \
+  --output-dir data/generated/longdesc_qwen_v2 \
   --preflight-only
 
 python -m src.data.generate_longdesc \
   --config configs/longdesc.qwen.json \
   --metadata data/processed/coco_metadata.json \
   --splits data/splits/coco_splits.json \
-  --output-dir data/generated/longdesc_qwen \
+  --output-dir data/generated/longdesc_qwen_v2 \
   --max-batches 2
 ```
 
@@ -72,7 +72,7 @@ python -m src.data.generate_longdesc \
   --config configs/longdesc.qwen.json \
   --metadata data/processed/coco_metadata.json \
   --splits data/splits/coco_splits.json \
-  --output-dir data/generated/longdesc_qwen
+  --output-dir data/generated/longdesc_qwen_v2
 ```
 
 This resumes after saved batches. There is no scheduler. Completed batches,
@@ -85,7 +85,7 @@ length warnings; exit code 0 may still describe a partial smoke test.
 
 ## Outputs on rama
 
-Under `/home/jayanth/projects/nanovlm_new/data/generated/longdesc_qwen/`:
+Under `/home/jayanth/projects/nanovlm_new/data/generated/longdesc_qwen_v2/`:
 
 - `longdesc.jsonl`: generated long descriptions and source captions, IDs,
   assignments, timestamp, teacher model, seeds/configuration, validation/warnings,
@@ -103,8 +103,23 @@ ends; after a forced kill it may lag the checkpoint until resume/export-only.
 Once the full run finishes, inspect it with:
 
 ```bash
-python -m src.data.report_descriptions --input data/generated/longdesc_qwen/longdesc.jsonl --field long_desc
+python -m src.data.report_descriptions --input data/generated/longdesc_qwen_v2/longdesc.jsonl --field long_desc
 ```
 
 No real LongDesc generation was performed locally. Local verification uses test
 teachers in temporary directories. Phases 1F–1H remain outside this implementation.
+
+
+## Prompt revision after the first smoke run
+
+The initial 32-image run in `data/generated/longdesc_qwen/` produced 29 outputs
+below 60 words. The revised prompt targets about 65 words and suggests a sentence
+length plan while explicitly forbidding unsupported sounds, intentions, causes,
+and backstory. Grounding takes priority over length. Validation remains advisory
+for length; there are no new hard cutoffs or length-based retries.
+
+Keep the first smoke output unchanged. The commands above use the new
+`longdesc_qwen_v2` directory to compare the same first 32 images without mixing
+prompt versions. The model, seed, batch size, token limits, source captions and
+assignments are unchanged. Local tests cannot establish that this prompt improves
+real teacher output; inspect the new smoke sample before the full run.
