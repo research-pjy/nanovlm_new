@@ -44,7 +44,10 @@ or input fingerprints to avoid silently mixing experiments.
 ## Before the first GPU run
 
 The model setting defaults to the **standard Hugging Face cache**. All model
-resolution/loading uses `local_files_only=True`; nothing is downloaded.
+resolution/loading uses `local_files_only=True`; nothing is downloaded. The cached
+revision is located through `config.json`, rather than requiring a complete Hub
+repository snapshot. Missing `README.md` or `.gitattributes` is harmless; missing
+weight shards, tokenizer assets, or a usable chat template still fails preflight.
 If your checkpoint is in a separate directory, copy the JSON configuration locally,
 set `model` to that directory's full path, review/commit that configuration, and
 use it consistently in every command. Do this before the first generation batch.

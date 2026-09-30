@@ -9,10 +9,33 @@ import shutil
 from .base import TeacherOutput
 
 
+
+def resolve_model_path(config):
+    """Locate the selected cached revision without requiring non-inference repo files."""
+    model_path = Path(config['model']).expanduser()
+    if model_path.is_dir():
+        return model_path
+    from huggingface_hub import hf_hub_download
+    config_path = hf_hub_download(config['model'], filename='config.json',
+                                  revision=config['revision'], local_files_only=True)
+    # Do not resolve this symlink: its parent is the snapshot, not the blob store.
+    return Path(config_path).parent
+
+
+def validate_weights(model_path):
+    index_path = model_path / 'model.safetensors.index.json'
+    if index_path.exists():
+        shards = set(json.loads(index_path.read_text())['weight_map'].values())
+        if not shards or any(not isinstance(name, str) or Path(name).name != name or
+                             not (model_path / name).is_file() for name in shards):
+            raise ValueError('Incomplete or invalid cached model shards')
+    elif not (model_path / 'model.safetensors').is_file():
+        raise ValueError('Missing model.safetensors or its shard index; cached weights are incomplete')
+
+
 def prepare(config, output_parent):
     import torch
     from transformers import AutoTokenizer, Qwen3VLForConditionalGeneration  # noqa: F401
-    from huggingface_hub import snapshot_download
 
     if not torch.cuda.is_available():
         raise ValueError('CUDA GPU unavailable; activate qwen-vl on rama and check PyTorch/CUDA')
@@ -35,9 +58,7 @@ def prepare(config, output_parent):
     disk = shutil.disk_usage(parent).free
     if disk < config['minimum_free_disk_gib'] * 2**30:
         raise ValueError(f'Only {disk / 2**30:.2f} GiB output disk space free')
-    model_path = Path(config['model']).expanduser()
-    if not model_path.is_dir():
-        model_path = Path(snapshot_download(config['model'], revision=config['revision'], local_files_only=True))
+    model_path = resolve_model_path(config)
     model_config = json.loads((model_path / 'config.json').read_text())
     if model_config.get('model_type') != 'qwen3_vl':
         raise ValueError('Expected a Qwen3-VL Hugging Face checkpoint')
@@ -45,11 +66,12 @@ def prepare(config, output_parent):
     files = sorted(p for p in model_path.iterdir() if p.is_file() and p.suffix in ('.json', '.safetensors', '.jinja', '.txt', '.model'))
     if not any(p.suffix == '.safetensors' for p in files):
         raise ValueError('No cached safetensors weights found; supply the complete local model directory')
-    index_path = model_path / 'model.safetensors.index.json'
-    if index_path.exists():
-        shards = set(json.loads(index_path.read_text())['weight_map'].values())
-        if any(Path(name).name != name or not (model_path / name).is_file() for name in shards):
-            raise ValueError('Incomplete or invalid cached model shards')
+    validate_weights(model_path)
+    # Validate tokenizer/template availability offline without allocating model weights.
+    tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True, padding_side='left')
+    tokenizer.apply_chat_template([{'role': 'user', 'content': 'Check.'}],
+                                  tokenize=True, add_generation_prompt=True)
+    del tokenizer
     asset_hash = hashlib.sha256()
     print('Fingerprinting cached teacher assets (read-only; may take a minute)', flush=True)
     for path in files:
