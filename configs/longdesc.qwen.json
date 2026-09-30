@@ -1,0 +1,13 @@
+{
+  "backend": "qwen_hf",
+  "model": "Qwen/Qwen3-VL-8B-Instruct",
+  "revision": "main",
+  "input_mode": "captions_only",
+  "batch_size": 16,
+  "random_seed": 42,
+  "max_new_tokens": 256,
+  "max_input_tokens": 2048,
+  "max_attempts": 3,
+  "minimum_free_vram_gib": 24,
+  "minimum_free_disk_gib": 2
+}

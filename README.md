@@ -7,10 +7,9 @@ and still make coherent Vision Language Models?*
 
 Phase 0 scaffolding, modified Phase 1A (existing download verification),
 Phase 1B (deterministic selection verification), Phase 1C (portable metadata
-export), Phase 1D (preserved split artifacts), and Phase 1E-short (resumable
-caption-only teacher generation) are implemented. The Qwen adapter awaits its
-first real L40S smoke run. No student model, loss, training, evaluation, or
-LongDesc generation is implemented. Develop one phase at a time.
+export), Phase 1D (preserved split artifacts), and Phase 1E short/long description generation are implemented. ShortDesc has
+completed on rama; LongDesc awaits its L40S smoke run. No student model, loss,
+training, or evaluation is implemented. Develop one phase at a time.
 
 ## Research question
 
@@ -137,8 +136,8 @@ copy separately; local success does not establish remote integrity.
 
 Remaining steps, to implement separately:
 
-- **1E-short:** implemented; run and review the L40S smoke test.
-- **1E-long:** separate next implementation step.
+- **1E-short:** generation completed on rama; review remaining validation flags.
+- **1E-long:** implemented; run the separate L40S smoke test before scaling up.
 - **1F–1H:** await specifications.
 
 Validation:
@@ -297,3 +296,15 @@ No real synthetic descriptions have been generated during local implementation.
 The tests use a fake teacher exclusively inside temporary directories. The real
 checkpoint is resolved offline from the Hugging Face cache by default; if it is
 stored separately, configure the full model directory before the first run.
+
+
+## DATA Phase 1E, step 2: LongDesc generation
+
+See [the LongDesc run guide](docs/longdesc.md) for the read-only ShortDesc report,
+LongDesc preflight, smoke/full-run commands, and output locations. LongDesc targets
+approximately 60–70 words; length deviations are advisory, not automatic retries.
+The completed short generation code and its output files are preserved.
+
+```bash
+python3 -m src.data.generate_longdesc --config configs/longdesc.qwen.json --metadata data/processed/coco_metadata.json --splits data/splits/coco_splits.json --output-dir data/generated/longdesc_qwen --check-inputs
+```
