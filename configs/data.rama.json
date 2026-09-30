@@ -1,5 +1,7 @@
 {
   "data_root": "/home/jayanth/datasets/coco",
   "number_of_images": 28000,
-  "random_seed": 42
+  "random_seed": 42,
+  "number_of_held_out": 100,
+  "train_fraction": 0.9
 }

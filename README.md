@@ -5,8 +5,8 @@ and still make coherent Vision Language Models?*
 
 ## Current scope
 
-Phase 0 scaffolding and modified Phase 1A (read-only verification of an existing
-COCO download) are implemented. No selection generation, metadata export, model,
+Phase 0 scaffolding, modified Phase 1A (existing download verification), and
+Phase 1B (deterministic selection verification) are implemented. No selection generation, metadata export, model,
 loss, training, or evaluation is implemented. Develop one phase at a time.
 
 ## Research question
@@ -134,8 +134,6 @@ copy separately; local success does not establish remote integrity.
 
 Remaining steps, to implement separately:
 
-- **1B:** adopt and record the existing deterministic selection; reproduce its
-  sorted-ID, seeded shuffle procedure for verification. Never replace it silently.
 - **1C:** export portable metadata with relative image paths and all original
   captions. Some COCO images have more than five captions; the existing manifest
   retains the first five, but the source annotations must remain authoritative.
@@ -148,3 +146,41 @@ Validation:
 ```bash
 python3 -m unittest discover -s tests -v
 ```
+
+
+## DATA Phase 1B: preserve and verify selection
+
+The existing `image_selection.json` remains the authoritative saved selection.
+This phase never writes, replaces, or regenerates it, even when it is missing or
+inconsistent. It reconstructs the expected ordered IDs **in memory** from the
+complete caption annotation files, not from the downloaded image subset:
+
+1. Include source images with at least five captions.
+2. Sort unique image IDs, then shuffle with `random.Random(42)`.
+3. Reserve the first 100 IDs for held-out evaluation.
+4. Take the next 28,000 IDs and use `round(28000 * 0.9)` for the training boundary.
+5. Compare every ordered ID and source filename/split with the existing manifest.
+
+The configs now explicitly specify `number_of_held_out` and `train_fraction`, in
+addition to `data_root`, `number_of_images`, and `random_seed`. Configuration and
+manifest parameters must agree. Duplicate IDs, assignment changes, reordered IDs,
+incorrect counts, and malformed source annotations cause verification to fail.
+Images with fewer than five captions are counted as ineligible, matching the
+original downloader; malformed captions are errors rather than silently excluded.
+
+```bash
+python3 -m src.data.verify_selection --config configs/data.local.json
+```
+
+On rama, after the normal reviewed-commit transfer, use the same command with
+`python` in `qwen-vl` and `--config configs/data.rama.json`. No image decoding or
+third-party dependencies are needed for this phase; use Phase 1A for image health.
+
+The JSON report goes to standard output and includes candidate counts, assignment
+counts, errors, and SHA-256 fingerprints of the exact manifest and annotation
+files read. These hashes can identify differing local and remote copies; they are
+not a replacement for a trusted source checksum or a permanently pinned dataset
+version. Exit status is zero only on success. No remote validation has been run.
+
+Selection IDs and assignments stay stored in the existing manifest. Portable
+metadata export and repository split artifacts remain for Phases 1C and 1D.
