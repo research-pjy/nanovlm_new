@@ -140,8 +140,8 @@ Remaining steps, to implement separately:
 - **1E-short:** generation completed on rama; review remaining validation flags.
 - **1E-long:** generation completed on rama.
 - **1F:** full-data reports completed on rama; only length flags, no filtering.
-- **1G:** final dataset exporter implemented; run on rama.
-- **1H:** await specification.
+- **1G:** final dataset export completed on rama.
+- **1H:** acceptance checks and 100-image smoke pipeline implemented; run on rama.
 
 Validation:
 
@@ -328,3 +328,11 @@ record schema, provenance checks and portable image-path handling. This joins
 saved short/long descriptions by image ID into `train.jsonl`, `val.jsonl`, and
 `test.jsonl`, with no teacher calls. Training must consume these exported files
 and local images only. No training code is implemented by this phase.
+
+
+## DATA Phase 1H: tests and small-data mode
+
+See [the DATA test guide](docs/data_tests.md) for the ten required checks,
+full-dataset reload verification, and the complete `--num-images 100` pipeline.
+The accepted project seed remains 42. The small pipeline has isolated generation,
+validation and final export artifacts and never overwrites the 28K dataset.
