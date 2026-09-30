@@ -1,0 +1,40 @@
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Local datasets (retain directory placeholders)
+/data/raw/*
+!/data/raw/.gitkeep
+/data/generated/*
+!/data/generated/.gitkeep
+/data/processed/*
+!/data/processed/.gitkeep
+/data/splits/*
+!/data/splits/.gitkeep
+
+# Runtime artifacts
+/outputs/
+/checkpoints/
+/runs/
+/wandb/
+*.log
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
