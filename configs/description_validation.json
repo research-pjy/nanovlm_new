@@ -1,0 +1,12 @@
+{
+  "short_desc": {
+    "min_words": 20,
+    "max_words": 27,
+    "exclude_flags": []
+  },
+  "long_desc": {
+    "min_words": 60,
+    "max_words": 70,
+    "exclude_flags": []
+  }
+}

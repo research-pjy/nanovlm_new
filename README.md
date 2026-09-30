@@ -7,8 +7,9 @@ and still make coherent Vision Language Models?*
 
 Phase 0 scaffolding, modified Phase 1A (existing download verification),
 Phase 1B (deterministic selection verification), Phase 1C (portable metadata
-export), Phase 1D (preserved split artifacts), and Phase 1E short/long description generation are implemented. ShortDesc has
-completed on rama; LongDesc awaits its L40S smoke run. No student model, loss,
+export), Phase 1D (preserved split artifacts), and Phase 1E short/long description generation are implemented. ShortDesc and LongDesc generation have
+completed on rama. Phase 1F description auditing and optional filtering are implemented;
+full-data validation reports remain to be run on rama. No student model, loss,
 training, or evaluation is implemented. Develop one phase at a time.
 
 ## Research question
@@ -137,8 +138,9 @@ copy separately; local success does not establish remote integrity.
 Remaining steps, to implement separately:
 
 - **1E-short:** generation completed on rama; review remaining validation flags.
-- **1E-long:** implemented; run the separate L40S smoke test before scaling up.
-- **1F–1H:** await specifications.
+- **1E-long:** generation completed on rama.
+- **1F:** validator implemented; run the full-data reports on rama.
+- **1G–1H:** await specifications.
 
 Validation:
 
@@ -308,3 +310,11 @@ The completed short generation code and its output files are preserved.
 ```bash
 python3 -m src.data.generate_longdesc --config configs/longdesc.qwen.json --metadata data/processed/coco_metadata.json --splits data/splits/coco_splits.json --output-dir data/generated/longdesc_qwen --check-inputs
 ```
+
+
+## DATA Phase 1F: description validation
+
+See [the validation guide](docs/description_validation.md) for the rama commands,
+check definitions, duplicate detection, per-record reports, and optional filtering.
+Default policies retain all records and flag word counts outside 20–27 (short)
+and 60–70 (long). No automatic deletion or generation-time status rewriting occurs.
