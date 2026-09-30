@@ -7,8 +7,10 @@ and still make coherent Vision Language Models?*
 
 Phase 0 scaffolding, modified Phase 1A (existing download verification),
 Phase 1B (deterministic selection verification), Phase 1C (portable metadata
-export), and Phase 1D (preserved split artifacts) are implemented. No selection generation, model,
-loss, training, or evaluation is implemented. Develop one phase at a time.
+export), Phase 1D (preserved split artifacts), and Phase 1E-short (resumable
+caption-only teacher generation) are implemented. The Qwen adapter awaits its
+first real L40S smoke run. No student model, loss, training, evaluation, or
+LongDesc generation is implemented. Develop one phase at a time.
 
 ## Research question
 
@@ -135,7 +137,9 @@ copy separately; local success does not establish remote integrity.
 
 Remaining steps, to implement separately:
 
-- **1E–1H:** await specifications.
+- **1E-short:** implemented; run and review the L40S smoke test.
+- **1E-long:** separate next implementation step.
+- **1F–1H:** await specifications.
 
 Validation:
 
@@ -273,3 +277,23 @@ zero overlap in each pair. If Phase 1A has not been run on rama's copy, run
 `python -m src.data.verify_existing --config configs/data.rama.json` first to
 check image decoding as well. No remote commands were executed during local
 implementation. No model, training, or later DATA phases are implemented here.
+
+
+## DATA Phase 1E, step 1: ShortDesc generation
+
+See [the ShortDesc run guide](docs/shortdesc.md) for all rama commands, preflight,
+smoke runs, full runs, resume/recovery, output schema, validation limits, and model
+cache configuration. The default is Qwen3-VL-8B-Instruct with captions only,
+batch size 16, BF16, and base seed 42. LongDesc is intentionally separate.
+
+Local verification without loading a model:
+
+```bash
+python3 -m unittest discover -s tests -q
+python3 -m src.data.generate_shortdesc --config configs/shortdesc.qwen.json --metadata data/processed/coco_metadata.json --splits data/splits/coco_splits.json --output-dir data/generated/shortdesc_qwen --check-inputs
+```
+
+No real synthetic descriptions have been generated during local implementation.
+The tests use a fake teacher exclusively inside temporary directories. The real
+checkpoint is resolved offline from the Hugging Face cache by default; if it is
+stored separately, configure the full model directory before the first run.
