@@ -11,7 +11,8 @@ on rama with an injectable tokenizer and a diagnostic byte probe.
 [Experimental Variant A: Global-Image Convolution](docs/vision_global.md) is
 implemented and passed its component tests and CUDA BF16 smoke check on rama.
 [Experimental Variant B: Patch-Wise Convolution](docs/vision_patch.md) adds shared
-convolutions applied independently to patches; its numerical checks await rama.
+convolutions applied independently to patches; both variants passed all 16 vision
+tests, and Variant B also passed its CUDA BF16 smoke check on rama.
 No complete student model, loss computation, training loop, or evaluation is implemented.
 Develop one bucket at a time.
 
@@ -29,6 +30,11 @@ The initial comparison will vary only convolution placement. Keep the connector,
 decoder, task, data and split, loss, optimizer, and other experimental settings
 identical between branches. Resolve unspecified architectural details explicitly
 during the MODEL bucket, before implementation.
+
+The [first controlled comparison contract](docs/controlled_comparison.md) records
+all shared settings and the verified encoder counts: 13,760,576 parameters per
+variant, with a difference of zero. Full-model counts will be recorded after
+connector and decoder implementation.
 
 ## Bucket boundaries
 
