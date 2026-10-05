@@ -6,9 +6,11 @@ and still make coherent Vision Language Models?*
 ## Current scope
 
 The DATA bucket (Phases 1A–1H) is implemented and verified on rama, including the
-full export and real 100-image pipeline. Phase 2 TASK is implemented locally with
-an injectable tokenizer; its real-data CPU checks remain to be run on rama.
-No student model, loss computation, training loop, or evaluation is implemented.
+full export and real 100-image pipeline. Phase 2 TASK passed its real-data checks
+on rama with an injectable tokenizer and a diagnostic byte probe.
+[Experimental Variant A: Global-Image Convolution](docs/vision_global.md) is
+implemented as a standalone vision encoder; its numerical checks await rama.
+No complete student model, loss computation, training loop, or evaluation is implemented.
 Develop one bucket at a time.
 
 ## Research question
