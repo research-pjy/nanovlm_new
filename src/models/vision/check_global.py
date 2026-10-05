@@ -1,6 +1,6 @@
 """Synthetic forward/backward check, not a training run or scientific evaluation."""
 import argparse
-from dataclasses import asdict
+from dataclasses import asdict, replace
 import json
 from pathlib import Path
 import platform
@@ -11,7 +11,11 @@ from .config import VisionConfig
 
 def main(expected_strategy='global'):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--config', required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument('--config', help='Existing vision-only JSON configuration')
+    source.add_argument('--model-config', help='Shared model JSON configuration')
+    parser.add_argument('--convolution-strategy', choices=('global', 'patch'),
+                        help='Override only placement in a shared model configuration')
     parser.add_argument('--device', choices=('cpu', 'cuda'), default='cpu')
     parser.add_argument('--bf16', action='store_true')
     parser.add_argument('--batch-size', type=int, default=2)
@@ -20,13 +24,23 @@ def main(expected_strategy='global'):
     args = parser.parse_args()
     if args.batch_size < 1:
         parser.error('--batch-size must be positive')
+    if args.convolution_strategy and not args.model_config:
+        parser.error('--convolution-strategy requires --model-config')
     report_path = Path(args.report)
     if report_path.exists():
         parser.error('Report already exists; choose a new report path')
     try:
         import torch
         from .encoder import VisionEncoder
-        config = VisionConfig.from_dict(json.loads(Path(args.config).read_text()))
+        model_config = None
+        if args.model_config:
+            from ..config import ModelConfig
+            model_config = ModelConfig.load(args.model_config)
+            if args.convolution_strategy:
+                model_config = replace(model_config, convolution_strategy=args.convolution_strategy)
+            config = model_config.to_vision_config()
+        else:
+            config = VisionConfig.from_dict(json.loads(Path(args.config).read_text()))
         if config.conv_strategy != expected_strategy:
             raise ValueError(f'This check requires conv_strategy={expected_strategy}')
         if args.device == 'cuda' and not torch.cuda.is_available():
@@ -65,6 +79,10 @@ def main(expected_strategy='global'):
                   'output_shape': list(tokens.shape), 'output_dtype': str(tokens.dtype),
                   'parameters': sum(p.numel() for p in model.parameters()),
                   'all_parameter_gradients_finite': True, 'optimizer_steps': 0}
+        if model_config is not None:
+            report['model_config'] = model_config.to_dict()
+            report['parameter_count_scope'] = 'vision_encoder_only'
+            report['complete_model_parameters'] = None
         if args.device == 'cuda':
             report['gpu'] = {
                 'peak_allocated_gib': torch.cuda.max_memory_allocated() / 2**30,

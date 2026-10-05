@@ -14,6 +14,9 @@ implemented and passed its component tests and CUDA BF16 smoke check on rama.
 convolutions applied independently to patches; both variants passed all 16 vision
 tests, and Variant B also passed its CUDA BF16 smoke check on rama.
 No complete student model, loss computation, training loop, or evaluation is implemented.
+One [debug model configuration](docs/model_configuration.md) now controls shared
+dimensions and maps to either vision strategy. Decoder settings are reserved for
+the upcoming decoder implementation; Mini/Base/Large presets are not implemented.
 Develop one bucket at a time.
 
 ## Research question

@@ -1,0 +1,16 @@
+{
+  "image_size": 224,
+  "patch_size": 16,
+  "vision_blocks": 1,
+  "decoder_layers": 2,
+  "attention_heads": 4,
+  "embedding_dimension": 128,
+  "image_embedding_dimension": 128,
+  "dropout": 0.1,
+  "convolution_strategy": "global",
+  "in_channels": 3,
+  "conv_channels": [8, 16],
+  "conv_kernel_size": 3,
+  "mlp_ratio": 4,
+  "vocabulary_size": null
+}
