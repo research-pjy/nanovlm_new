@@ -5,12 +5,11 @@ and still make coherent Vision Language Models?*
 
 ## Current scope
 
-Phase 0 scaffolding, modified Phase 1A (existing download verification),
-Phase 1B (deterministic selection verification), Phase 1C (portable metadata
-export), Phase 1D (preserved split artifacts), and Phase 1E short/long description generation are implemented. ShortDesc and LongDesc generation have
-completed on rama. Phase 1F description auditing and optional filtering are implemented;
-full-data validation reports remain to be run on rama. No student model, loss,
-training, or evaluation is implemented. Develop one phase at a time.
+The DATA bucket (Phases 1A–1H) is implemented and verified on rama, including the
+full export and real 100-image pipeline. Phase 2 TASK is implemented locally with
+an injectable tokenizer; its real-data CPU checks remain to be run on rama.
+No student model, loss computation, training loop, or evaluation is implemented.
+Develop one bucket at a time.
 
 ## Research question
 
@@ -141,7 +140,7 @@ Remaining steps, to implement separately:
 - **1E-long:** generation completed on rama.
 - **1F:** full-data reports completed on rama; only length flags, no filtering.
 - **1G:** final dataset export completed on rama.
-- **1H:** acceptance checks and 100-image smoke pipeline implemented; run on rama.
+- **1H:** full-data acceptance checks and real 100-image pipeline passed on rama.
 
 Validation:
 
@@ -336,3 +335,12 @@ See [the DATA test guide](docs/data_tests.md) for the ten required checks,
 full-dataset reload verification, and the complete `--num-images 100` pipeline.
 The accepted project seed remains 42. The small pipeline has isolated generation,
 validation and final export artifacts and never overwrites the 28K dataset.
+
+
+## Phase 2: TASK bucket
+
+See [the TASK guide](docs/tasks.md) for the architecture-independent builder,
+injectable tokenizer, exact prompt/target split, loss-mask alignment, optional
+padding helper, and CPU-only rama checks. SHORT uses 6–7 prefix words and LONG
+18–20, selected deterministically with seed 42. No training tokenizer or model
+architecture has been selected, and no teacher is used by task construction.
