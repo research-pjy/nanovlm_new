@@ -112,13 +112,11 @@ class GlobalVisionTests(unittest.TestCase):
         self.assertNotEqual(self.model.blocks[0].norm1.weight.data_ptr(),
                             self.model.blocks[1].norm1.weight.data_ptr())
 
-    def test_reject_wrong_inputs_and_unimplemented_strategy(self):
+    def test_reject_wrong_inputs_and_conflicting_strategy(self):
         for image in (torch.zeros(3, 32, 32), torch.zeros(1, 3, 31, 32),
                       torch.zeros(0, 3, 32, 32), torch.zeros(1, 3, 32, 32, dtype=torch.uint8)):
             with self.assertRaises(ValueError):
                 self.model(image)
-        with self.assertRaises(NotImplementedError):
-            VisionEncoder(conv_strategy='patch')
         with self.assertRaises(ValueError):
             VisionEncoder(self.config, conv_strategy='patch')
 

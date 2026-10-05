@@ -1,7 +1,7 @@
 # Experimental Variant A: Global-Image Convolution
 
 This is a configurable experimental interpretation, **not the exact implementation
-from the paper**. Only the global vision encoder is implemented at this stage.
+from the paper**. The global and patch-wise encoders share the same transformer implementation.
 
 The default flow is:
 
@@ -46,8 +46,8 @@ encoder = VisionEncoder(config, conv_strategy='global')
 tokens = encoder(images)
 ```
 
-`VisionEncoder(conv_strategy='global')` also works with defaults. Requesting
-`patch` raises an explicit not-implemented error. RGB conversion, resizing,
+`VisionEncoder(conv_strategy='global')` also works with defaults. Using
+`patch` selects [Experimental Variant B: Patch-Wise Convolution](vision_patch.md). RGB conversion, resizing,
 scaling/normalization and batching are external; a shared preprocessing policy
 must be chosen before training. No tokenizer, teacher, connector or decoder is
 loaded by this component.
@@ -76,4 +76,5 @@ proof of scientific performance.
 Tests check actual full-image convolution order, influence across future patch
 boundaries, patch ordering, gradients, checkpoint reload, and invalid inputs.
 If PyTorch is absent, numerical tests explicitly skip; configuration tests still
-run. The CUDA smoke check must pass on rama before this component is accepted.
+run. The original eight component tests and CUDA BF16 smoke check passed on rama.
+Rerun the component tests after changes to shared encoder code.

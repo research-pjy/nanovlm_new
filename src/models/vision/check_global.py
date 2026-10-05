@@ -9,7 +9,7 @@ import shutil
 from .config import VisionConfig
 
 
-def main():
+def main(expected_strategy='global'):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config', required=True)
     parser.add_argument('--device', choices=('cpu', 'cuda'), default='cpu')
@@ -27,6 +27,8 @@ def main():
         import torch
         from .encoder import VisionEncoder
         config = VisionConfig.from_dict(json.loads(Path(args.config).read_text()))
+        if config.conv_strategy != expected_strategy:
+            raise ValueError(f'This check requires conv_strategy={expected_strategy}')
         if args.device == 'cuda' and not torch.cuda.is_available():
             raise ValueError('CUDA is unavailable; check the qwen-vl environment and GPU')
         if args.bf16 and (args.device != 'cuda' or not torch.cuda.is_bf16_supported()):

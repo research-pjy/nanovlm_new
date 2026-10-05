@@ -1,0 +1,13 @@
+{
+  "conv_strategy": "patch",
+  "image_size": 224,
+  "patch_size": 16,
+  "in_channels": 3,
+  "conv_channels": [16, 32],
+  "conv_kernel_size": 3,
+  "embed_dim": 512,
+  "depth": 3,
+  "num_heads": 8,
+  "mlp_ratio": 4,
+  "dropout": 0.1
+}
