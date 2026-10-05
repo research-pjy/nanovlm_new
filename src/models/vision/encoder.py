@@ -1,6 +1,9 @@
 """Experimental global-image and patch-wise convolution vision encoders.
 
-This is an explicit interpretation, not an exact reproduction of NanoVLMs.
+The paper describes the image as being divided into 16x16 patches and also describes two 2D convolutional layers as part of patch embedding, but does not provide sufficient implementation detail to uniquely determine whether those convolutions operate before patch extraction or independently after patch extraction. This implementation therefore treats the two interpretations as experimental variants.
+
+Neither variant may be described as the authors' exact implementation unless
+additional implementation evidence is found and documented.
 """
 import torch
 from torch import nn

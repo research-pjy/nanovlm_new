@@ -18,14 +18,16 @@ Develop one bucket at a time.
 
 ## Research question
 
-The paper describes 224 × 224 images, 16 × 16 patches, 196 image tokens, and two
-2D convolutional layers, but does not unambiguously specify convolution placement.
-The planned visual encoder will support two explicit interpretations:
+The paper describes the image as being divided into 16x16 patches and also describes two 2D convolutional layers as part of patch embedding, but does not provide sufficient implementation detail to uniquely determine whether those convolutions operate before patch extraction or independently after patch extraction. This implementation therefore treats the two interpretations as experimental variants.
+
+The visual encoder supports two explicit interpretations:
 
 - **Global-Conv:** apply convolution to the complete image before patch extraction.
 - **Patch-Conv:** extract patches first and apply convolution independently to them.
 
 Neither interpretation is claimed to be an exact reproduction of the paper.
+Neither variant may be described as the authors' exact implementation unless
+additional implementation evidence is found and documented.
 The initial comparison will vary only convolution placement. Keep the connector,
 decoder, task, data and split, loss, optimizer, and other experimental settings
 identical between branches. Resolve unspecified architectural details explicitly
