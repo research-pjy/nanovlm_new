@@ -106,6 +106,18 @@ class VisionTransformerBlock(nn.Module):
 
 
 class VisionEncoder(nn.Module):
+    """Strategy-independent visual sequence interface.
+
+    Input: floating [B, C, H, W] images matching the configuration.
+    Output: final-normalized [B, N + 1, D] transformer features, where
+    N = (image_size / patch_size)**2 and D = output_dim.
+    Index 0 is the contextualized CLS token; indices 1: are contextualized
+    visual tokens in row-major patch order. Defaults give N=196 and D=512.
+    No pooling, CLS removal, or connector projection is performed here.
+    Consumers use this same layout for either convolution strategy.
+    Output stays on the input/model device and retains its autograd graph.
+    The floating dtype follows execution precision, not a fixed BF16 promise.
+    """
     label = 'Experimental Variant A: Global-Image Convolution'
 
     def __init__(self, config: VisionConfig | None = None, *, conv_strategy: str | None = None):
@@ -130,7 +142,18 @@ class VisionEncoder(nn.Module):
         nn.init.normal_(self.cls_token, std=0.02)
         nn.init.normal_(self.position_embedding, std=0.02)
 
+    @property
+    def output_dim(self):
+        """Feature width for downstream components, independent of strategy."""
+        return self.config.embed_dim
+
+    @property
+    def num_visual_tokens(self):
+        """Number of patch tokens, excluding the single prepended CLS token."""
+        return self.config.num_patches
+
     def forward(self, images):
+        """Return [B, 1 + num_visual_tokens, output_dim], with CLS first."""
         patches = self.patch_embedding(images)
         cls = self.cls_token.to(dtype=patches.dtype).expand(patches.shape[0], -1, -1)
         tokens = torch.cat([cls, patches], dim=1)

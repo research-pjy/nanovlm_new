@@ -40,6 +40,10 @@ connector and decoder implementation.
 
 ## Bucket boundaries
 
+Both vision strategies follow the same [output contract](docs/vision_output_contract.md):
+`[B, 197, D]`, with CLS first and 196 visual tokens after it for 224×224 images
+and 16×16 patches. Downstream components do not inspect convolution strategy.
+
 The conceptual pipeline is DATA → TASK → MODEL → LOSS → LEARNING → EVALUATION.
 Each listed component should remain independently replaceable.
 
