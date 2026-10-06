@@ -40,3 +40,6 @@ dist/
 .idea/
 .vscode/
 .DS_Store
+
+# Local project instruction reference
+/PROJECT_INSTRUCTIONS.txt
