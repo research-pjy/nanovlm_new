@@ -1,6 +1,6 @@
 # 3G — Paper evidence and proposed small-model design
 
-Status: review complete; design proposed, awaiting user agreement before 3H–3L.
+Status: design approved by the user; implement 3H–3L individually.
 Date: 2026-10-06. No dependent modules or training implemented by this review.
 
 ## Evidence and provenance
@@ -212,7 +212,5 @@ first-target loss alignment; gradients through every component; checkpoint reloa
 matching initial parameters/counts and both CPU and rama BF16 execution. A real
 tiny-data overfit test remains a Phase 5 gate, not part of this documentation step.
 
-Decision requested: accept this proposed tokenizer, pixel transform, single-CLS
-prefix connector and small causal decoder as the first debug design, or identify
-changes before 3H. Until agreed, configuration/code remain unchanged and 3G is
-not marked accepted. Implement 3H, 3I, 3J, 3K and 3L one at a time thereafter.
+Decision recorded: the user accepted this tokenizer, pixel transform, single-CLS
+prefix connector and small causal decoder as the first debug design. The user approved this design after review; 3G is accepted. Implement 3H, 3I, 3J, 3K and 3L one at a time thereafter.
