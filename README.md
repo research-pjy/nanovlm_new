@@ -17,7 +17,9 @@ tests, and Variant B also passed its CUDA BF16 smoke check on rama.
 of model architecture and respects the TASK loss mask; numerical validation
 awaits rama. No complete student model, training loop, or evaluation is implemented.
 The [student BPE tokenizer](docs/student_tokenizer.md) implements the approved
-train-only vocabulary design; artifact fitting and real-data verification await rama.
+train-only vocabulary design; rama verified 4,096 tokens and all 56,200 TASK
+examples. [Shared image preprocessing](docs/image_preprocessing.md) is implemented;
+its numerical and real-image checks await rama.
 One [debug model configuration](docs/model_configuration.md) now controls shared
 dimensions and maps to either vision strategy. Decoder settings are reserved for
 the upcoming decoder implementation; Mini/Base/Large presets are not implemented.
