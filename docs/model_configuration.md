@@ -15,7 +15,8 @@ width 128, image embedding width 128, dropout 0.1, convolution widths 8/16, two
 
 - `image_size`, `patch_size`: square input size and spatial patch size.
 - `vision_blocks`: number of vision transformer blocks.
-- `decoder_layers`: planned decoder depth.
+- `decoder_layers`: decoder depth.
+- `max_text_tokens`: text context capacity (default 512), plus one image position.
 - `attention_heads`: shared head count for vision and the future decoder.
 - `embedding_dimension`: future language-decoder/text embedding width.
 - `image_embedding_dimension`: vision output width, before any connector.
@@ -47,9 +48,8 @@ For an actual controlled initialization, reset seed 42 before each construction
 Both configurations must otherwise match. The debug vision output is
 `[B, 197, 128]`: one CLS token and 196 visual tokens.
 
-Only the existing vision encoder consumes these settings today. Decoder depth,
-text embedding width and vocabulary are configuration fields for subsequent
-sub-phases; no decoder, connector or complete NanoVLM is instantiated here.
+The vision encoder and the 3K decoder now consume their corresponding settings.
+The connector is implemented separately. Complete NanoVLM assembly remains 3L.
 The future connector must map image embedding width to text embedding width if
 needed. The decoder must require a resolved vocabulary before construction.
 

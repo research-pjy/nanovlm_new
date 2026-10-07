@@ -21,11 +21,12 @@ class ModelConfig:
     conv_channels: tuple[int, int] = (8, 16)
     conv_kernel_size: int = 3
     mlp_ratio: int = 4
-    # No training tokenizer has been chosen. Do not invent its vocabulary size.
+    max_text_tokens: int = 512
+    # Resolve from the saved student tokenizer; never guess its vocabulary size.
     vocabulary_size: int | None = None
 
     def __post_init__(self):
-        for name in ('decoder_layers', 'embedding_dimension'):
+        for name in ('decoder_layers', 'embedding_dimension', 'max_text_tokens'):
             value = getattr(self, name)
             if type(value) is not int or value <= 0:
                 raise ValueError(f'{name} must be a positive integer')
