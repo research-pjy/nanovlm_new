@@ -15,14 +15,15 @@ convolutions applied independently to patches; both variants passed all 16 visio
 tests, and Variant B also passed its CUDA BF16 smoke check on rama.
 [Causal continuation cross entropy](docs/loss.md) is implemented independently
 of model architecture and respects the TASK loss mask; numerical validation
-awaits rama. No complete student model, training loop, or evaluation is implemented.
+awaits rama. The [complete model assembly](docs/nanovlm.md) is implemented; end-to-end
+acceptance on rama is pending. No training loop or evaluation is implemented.
 The [student BPE tokenizer](docs/student_tokenizer.md) implements the approved
 train-only vocabulary design; rama verified 4,096 tokens and all 56,200 TASK
 examples. [Shared image preprocessing](docs/image_preprocessing.md) is implemented;
 its seven tests and real-image checks passed on rama.
 The [CLS connector](docs/connector.md) passed its tests and the full 164-test
-suite on rama. The [causal decoder](docs/decoder.md) is implemented; its numerical
-checks await rama.
+suite on rama. The [causal decoder](docs/decoder.md) passed its seven tests and
+the full 171-test suite on rama.
 One [debug model configuration](docs/model_configuration.md) now controls shared
 dimensions and maps to either vision strategy. Decoder settings are reserved for
 the upcoming decoder implementation; Mini/Base/Large presets are not implemented.
