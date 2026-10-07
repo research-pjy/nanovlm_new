@@ -19,7 +19,8 @@ awaits rama. No complete student model, training loop, or evaluation is implemen
 The [student BPE tokenizer](docs/student_tokenizer.md) implements the approved
 train-only vocabulary design; rama verified 4,096 tokens and all 56,200 TASK
 examples. [Shared image preprocessing](docs/image_preprocessing.md) is implemented;
-its numerical and real-image checks await rama.
+its seven tests and real-image checks passed on rama.
+The [CLS connector](docs/connector.md) is implemented; numerical checks await rama.
 One [debug model configuration](docs/model_configuration.md) now controls shared
 dimensions and maps to either vision strategy. Decoder settings are reserved for
 the upcoming decoder implementation; Mini/Base/Large presets are not implemented.
