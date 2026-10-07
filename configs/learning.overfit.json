@@ -1,0 +1,14 @@
+{
+  "seed": 42,
+  "train_images": 10,
+  "validation_images": 10,
+  "batch_size": 10,
+  "epochs": 300,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0,
+  "gradient_clip": 1.0,
+  "checkpoint_every": 10,
+  "required_relative_reduction": 0.8,
+  "maximum_final_loss": 1.0,
+  "scheduler": "constant"
+}

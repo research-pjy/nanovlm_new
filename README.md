@@ -16,7 +16,9 @@ tests, and Variant B also passed its CUDA BF16 smoke check on rama.
 [Causal continuation cross entropy](docs/loss.md) is implemented independently
 of model architecture and respects the TASK loss mask; numerical validation
 awaits rama. The [complete model assembly](docs/nanovlm.md) is implemented; end-to-end
-acceptance on rama is pending. No training loop or evaluation is implemented.
+acceptance passed on rama for both variants and tasks. The
+[tiny-data learning gate](docs/learning_overfit.md) is implemented; its tests and
+actual overfitting runs await rama. Full-dataset training remains gated.
 The [student BPE tokenizer](docs/student_tokenizer.md) implements the approved
 train-only vocabulary design; rama verified 4,096 tokens and all 56,200 TASK
 examples. [Shared image preprocessing](docs/image_preprocessing.md) is implemented;
