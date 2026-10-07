@@ -58,8 +58,8 @@ python -m src.preprocessing.check_images \
   --report data/processed/image_preprocessing_check.json
 ```
 
-Six tests should run without skips, including an explicit check that the test PNG
-actually contains its EXIF orientation. The CPU smoke check reads the first four
+Seven tests should run without skips, including checks for saved PNG EXIF and
+in-memory EXIF edits without source mutation. The CPU smoke check reads the first four
 training records in ascending image-ID order after verifying the training file
 checksum/count/IDs. It checks source file hashes before/after, exact repeated
 pixel tensors and finite encoder outputs. It feeds the same batch tensor to both

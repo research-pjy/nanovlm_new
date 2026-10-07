@@ -39,6 +39,13 @@ class ImageConfig:
         return asdict(self)
 
 
+def _oriented_rgb(image):
+    from PIL import ImageOps
+    # exif_transpose returns a new image by default. A preceding Image.copy()
+    # can lose EXIF edits held in getexif() rather than serialized image.info.
+    return ImageOps.exif_transpose(image).convert('RGB')
+
+
 class ImagePreprocessor:
     """Callable PIL/path -> CPU float32 [3,H,W]; injectable as TASK image_loader.
 
@@ -50,15 +57,14 @@ class ImagePreprocessor:
 
     def __call__(self, source):
         import torch
-        from PIL import Image, ImageOps
+        from PIL import Image
         try:
             if isinstance(source, (str, Path)):
                 with Image.open(source) as original:
                     original.load()
-                    image = ImageOps.exif_transpose(original).convert('RGB')
+                    image = _oriented_rgb(original)
             elif isinstance(source, Image.Image):
-                # Work on a copy: never remove EXIF or alter pixels on caller's image.
-                image = ImageOps.exif_transpose(source.copy()).convert('RGB')
+                image = _oriented_rgb(source)
             else:
                 raise ValueError('Expected an image path or Pillow image')
             image = image.resize((self.config.image_size, self.config.image_size),

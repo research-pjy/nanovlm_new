@@ -16,6 +16,18 @@ def oriented_fixture(path):
 
 
 class ImageConfigTests(unittest.TestCase):
+    def test_in_memory_exif_uses_current_metadata_without_mutation(self):
+        from PIL import Image
+        from src.preprocessing.images import _oriented_rgb
+        image = Image.new('RGB', (2, 2))
+        image.putdata([(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 255)])
+        image.getexif()[274] = 6
+        before = image.tobytes(), image.getexif().tobytes(), dict(image.info)
+        result = _oriented_rgb(image)
+        self.assertEqual(result.getpixel((0, 0)), (0, 0, 255))
+        self.assertIsNot(result, image)
+        self.assertEqual((image.tobytes(), image.getexif().tobytes(), dict(image.info)), before)
+
     def test_exif_fixture_is_persisted(self):
         from PIL import Image, ImageOps
         with tempfile.TemporaryDirectory() as tmp:
